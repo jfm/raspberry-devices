@@ -1,3 +1,4 @@
+from events import OutputEvent, SetmodeEvent
 import socket
 import json
 
@@ -9,7 +10,8 @@ BCM = 11
 
 
 def setmode(mode):
-    pass
+    setmode_event = SetmodeEvent(mode)
+    _send_event(setmode_event.as_dict())
 
 
 def setup():
@@ -21,19 +23,15 @@ def input(channel):
 
 
 def output(channel, outmode):
-    output_event = {
-        'channel': channel,
-        'outmode': outmode
-    }
-
-    __send_event(output_event)
+    output_event = OutputEvent(channel, outmode)
+    _send_event(output_event.as_dict())
 
 
 def cleanup(channel=None):
     pass
 
 
-def __send_event(event):
+def _send_event(event):
     # Create a UDS socket
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 

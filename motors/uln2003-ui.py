@@ -78,29 +78,10 @@ class MotorWindow(Gtk.Window):
         jsonDict = json.loads(jsonString)
         print(jsonDict)
 
-        motor_pin = self.motor._pin_mapping(jsonDict['channel'])
-        if motor_pin == 1:
-            self.in1_switch.set_active(jsonDict['outmode'])
-            pin_name = 'IN1'
-        if motor_pin == 2:
-            self.in2_switch.set_active(jsonDict['outmode'])
-            pin_name = 'IN2'
-        if motor_pin == 3:
-            self.in3_switch.set_active(jsonDict['outmode'])
-            pin_name = 'IN3'
-        if motor_pin == 4:
-            self.in4_switch.set_active(jsonDict['outmode'])
-            pin_name = 'IN4'
+        pin_name = self._set_pins(jsonDict['channel'], jsonDict['outmode'])
 
-        self.log('PIN %s set to mode %s\n' % (pin_name, jsonDict['outmode']))
+        self._log('PIN %s set to mode %s\n' % (pin_name, jsonDict['outmode']))
         return False
-
-    def log(self, message):
-        timestamp = time.time()
-        logtime = datetime.datetime \
-            .fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
-        start_iter = self.textbuffer.get_end_iter()
-        self.textbuffer.insert(start_iter, '%s - %s' % (logtime, message))
 
     def listening(self):
         listening_thread = threading.Thread(
@@ -125,6 +106,30 @@ class MotorWindow(Gtk.Window):
             connection, address = sock.accept()
             event = connection.recv(1024)
             GLib.idle_add(self.update, event)
+
+    def _set_pins(self, rpi_pin, mode):
+        motor_pin = self.motor._pin_mapping(rpi_pin)
+        if motor_pin == 1:
+            self.in1_switch.set_active(mode)
+            pin_name = 'IN1'
+        if motor_pin == 2:
+            self.in2_switch.set_active(mode)
+            pin_name = 'IN2'
+        if motor_pin == 3:
+            self.in3_switch.set_active(mode)
+            pin_name = 'IN3'
+        if motor_pin == 4:
+            self.in4_switch.set_active(mode)
+            pin_name = 'IN4'
+
+        return pin_name
+
+    def _log(self, message):
+        timestamp = time.time()
+        logtime = datetime.datetime \
+            .fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+        start_iter = self.textbuffer.get_end_iter()
+        self.textbuffer.insert(start_iter, '%s - %s' % (logtime, message))
 
 
 if __name__ == "__main__":
